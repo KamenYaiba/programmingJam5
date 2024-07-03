@@ -1,69 +1,57 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-#define M 10
-#define N 8
-
-#define DEAD_END 100 
 #define FRONT 0
 #define RIGHT 1
 #define BACK 2
 #define LEFT 3
 
-int min(int *arr, int n);
-void printPaths();
-int explore(int i, int j);
-int shortestPath(int m);
-int validJump(int s, int d);
-int isEndLine(int j);
+int const DEAD_END = SHRT_MAX;
 
 
-    
-
-
-int array[M][N] =
+typedef struct parkourMap
 {
-            {6, 0, 7, 1, 7, 9, 3, 2},
-            {2, 6, 2, 3, 4, 4, 5, 6},
-            {6, 8, 1, 9, 7, 0, 1, 4},
-            {5, 4, 2, 4, 8, 7, 5, 5},
-            {9, 5, 1, 1, 2, 3, 6, 2},
-            {9, 5, 3, 5, 6, 4, 7, 7},
-            {1, 3, 5, 1, 8, 5, 3, 4},
-            {5, 3, 7, 7, 4, 6, 9, 5},
-            {7, 8, 9, 9, 8, 7, 1, 6},
-            {3, 4, 5, 5, 1, 3, 8, 5}
-};
+    int m;
+    int n;
+    char** heightMap;
+    short** visited;
+}parkourMap;
 
-int visited[M][N] =
- {
-            {0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0}
-};
+
+int min(int *arr, int n);
+int explore(parkourMap* pm, int i, int j);
+int shortestPath(parkourMap* pm);
+int validJump(char s, char d);
+int isEndLine(parkourMap *pm, int j);
+void displayPaths(parkourMap *pm);
+parkourMap* newParkourMap(int m, int n, char* rawMap);
+int destroyParkourMap(parkourMap* pm);
 
 
 
 //page 6 in the PDF
 int main ()
 {
-    int ans = shortestPath(M);
+    int m = 10;
+    int n = 8;
+    char* rawMap = "60717932\n26234456\n68197014\n54248755\n95112362\n95356477\n13518534\n53774695\n78998716\n34551385";
+    
+    parkourMap *pm = newParkourMap(m, n, rawMap);
+    int ans = shortestPath(pm);
+    //displayPaths(pm);  if you want to see the actual path (not required in the problem statment) ^^
+    destroyParkourMap(pm);
+    pm = NULL;
     printf("%d \n", ans);
 }
 
 
-int shortestPath(int m)
+int shortestPath(parkourMap* pm)
 {
     int min = DEAD_END;
+    int m = pm->m;
     for(int i = 0; i < m; i++)
     {
-        int temp = explore(i , 0);
+        int temp = explore(pm, i , 0);
         if (temp < min) min = temp;
     }
     if (min == DEAD_END) return 0;
@@ -72,36 +60,39 @@ int shortestPath(int m)
 
 
 
-int explore(int i, int j)
+int explore(parkourMap* pm, int i, int j)
 {
+    short **visited = pm->visited;
+    char **map = pm->heightMap;
     if(visited[i][j]) return visited[i][j];
+
     visited[i][j] = DEAD_END; //temp
 
     int neighbors [4] = {DEAD_END, DEAD_END, DEAD_END, DEAD_END};
 
-    if(j < N-1 && validJump(array[i][j], array[i][j+1]))
+    if(j < pm->n-1 && validJump(map[i][j], map[i][j+1]))
     {
-        if(isEndLine(j+1))
+        if(isEndLine(pm, j+1))
         {
             visited[i][j] = 1;
             return 1;
         }
-        neighbors[FRONT] = explore(i, j+1);
+        neighbors[FRONT] = explore(pm, i, j+1);
     }
 
-    if(i < M-1 && validJump(array[i][j], array[i+1][j]))
+    if(i < pm->m-1 && validJump(map[i][j], map[i+1][j]))
     {
-        neighbors[LEFT] = explore(i+1, j);
+        neighbors[LEFT] = explore(pm, i+1, j);
     }
 
-    if(i > 0 && validJump(array[i][j], array[i-1][j]))
+    if(i > 0 && validJump(map[i][j], map[i-1][j]))
     {
-        neighbors[RIGHT] = explore(i-1, j);
+        neighbors[RIGHT] = explore(pm, i-1, j);
     }
 
-    if(j > 0 && validJump(array[i][j], array[i][j-1]))
+    if(j > 0 && validJump(map[i][j], map[i][j-1]))
     {
-        neighbors[BACK] = explore(i, j-1);
+        neighbors[BACK] = explore(pm, i, j-1);
     }
 
  
@@ -117,18 +108,17 @@ int explore(int i, int j)
 }
 
 
-int validJump(int s, int d)
+int validJump(char s, char d)
 {
     int r = s - d;
     return r == 1 || r == -1 || r == 0;
 }
 
 
-int isEndLine(int j)
+int isEndLine(parkourMap *pm, int j)
 {
-    return j == N-1;
+    return j == pm->n-1;
 }
-
 
 
 int min(int *arr, int n)
@@ -143,14 +133,86 @@ int min(int *arr, int n)
 
 
 
-void printPaths()
+parkourMap* newParkourMap(int rows, int cols, char* rawMap)
 {
-    for(int i = 0; i < M; i++)
+    parkourMap *pm = (parkourMap*) malloc(sizeof(parkourMap));
+    pm->m = rows;
+    pm->n = cols;
+
+    char **heightMap = (char**) malloc(sizeof(char*) * rows);
+    short **visited = (short**) malloc(sizeof(short*) * rows);
+
+    for(int i = 0; i < rows; i++)
     {
-        for(int j = 0; j < N; j++)
+        heightMap[i] = (char*) malloc(sizeof(char) * cols);
+        visited[i] = (short*) malloc(sizeof(short) * cols);
+    }
+
+    int i, j, idx;
+    i = j = idx = 0;
+    char c;
+    while( (c = rawMap[idx++]) != '\0' )
+    {
+        if(c != '\n')
         {
-            printf("%4d   ", visited[i][j]);
+            heightMap[i][j] = c;
+            visited[i][j++] = 0;
         }
-        printf("\n");
+            
+        else
+        {
+            i++;
+            j = 0;
+        }
+    }
+    pm->heightMap = heightMap;
+    pm->visited = visited;
+
+    return pm;
+}
+
+
+int destroyParkourMap(parkourMap* pm)
+{
+    if(pm == NULL) return -1;
+    int m = pm->m;
+
+    char **heightMap = pm->heightMap;
+    if(heightMap != NULL)
+    {
+        for(int i = 0; i < m; i++)
+            free(heightMap[i]);
+
+        free(heightMap);
+        pm->heightMap = NULL;
+    }
+    
+    short **visited = pm->visited;
+    if(visited != NULL)
+    {
+        for(int i = 0; i < m; i++)
+            free(visited[i]);
+
+        free(visited);
+        pm->visited = NULL;
+    }
+
+    free(pm);
+    return 0;
+}
+
+
+void displayPaths(parkourMap *pm)
+{
+    int m = pm->m;
+    int n = pm->n;
+    short **paths = pm->visited;
+    for(int i = 0; i < m; i++)
+    {
+        for(int j = 0; j < n; j++)
+        {
+            printf("%7d   ", paths[i][j]);
+        }
+        printf("\n\n");
     }
 }
