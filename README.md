@@ -1,5 +1,5 @@
 ## Programming Jam 5.0 Solutions
-This repository contains my solutions problems from Programming Jam 5.0 competition held at PSU in 2019.
+This repository contains my solutions to problems from Programming Jam 5.0 competition held at PSU in 2019.
 
 # Approach
 The competition allowed solutions in **C++** and **Java** (later editions allowed **Python** instead of **C++**) but I opted to write the solutions here in **C**.
