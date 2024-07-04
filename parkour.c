@@ -19,7 +19,7 @@ typedef struct parkourMap
 
 
 int min(int *arr, int n);
-int explore(parkourMap* pm, int i, int j);
+short explore(parkourMap* pm, int i, int j);
 int shortestPath(parkourMap* pm);
 int validJump(char s, char d);
 int isEndLine(parkourMap *pm, int j);
@@ -38,15 +38,18 @@ int main ()
     
     parkourMap *pm = newParkourMap(m, n, rawMap);
     int ans = shortestPath(pm);
-    //displayPaths(pm);  if you want to see the actual path (not required in the problem statment) ^^
+    //displayPaths(pm);  //if you want to see the actual path (not required in the problem statment) ^^
     destroyParkourMap(pm);
     pm = NULL;
-    printf("%d \n", ans);
+    
+    printf("%d", ans); //output: 20
 }
 
 
 int shortestPath(parkourMap* pm)
 {
+    if (pm == NULL) return -1;
+
     int min = DEAD_END;
     int m = pm->m;
     for(int i = 0; i < m; i++)
@@ -60,7 +63,7 @@ int shortestPath(parkourMap* pm)
 
 
 
-int explore(parkourMap* pm, int i, int j)
+short explore(parkourMap* pm, int i, int j)
 {
     short **visited = pm->visited;
     char **map = pm->heightMap;
