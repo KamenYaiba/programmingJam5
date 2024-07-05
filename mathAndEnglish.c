@@ -43,7 +43,7 @@ int binarySearch(char *s, int n, char k)
         mid = low + ((high - low) / 2);
         if(s[mid] >= k)
         {
-            if(mid == 0 || k > s[mid-1])
+            if(k > s[mid-1] || mid == 0)
                 return mid;
 
             high = mid-1;   
