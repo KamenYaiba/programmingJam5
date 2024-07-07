@@ -28,7 +28,7 @@ int main()
 {
     int n = 10;
     int rods[] = {56, 15, 35, 86, 23, 48, 52, 25, 65, 74};
-    printf("%d", minWeldingCost(rods, n));
+    printf("%d", minWeldingCost(rods, n)); //output: 1535
 }
 
 
@@ -43,6 +43,8 @@ int minWeldingCost(int *rods, int n)
         insert(mq, newRod);
         cost+= newRod;
     }
+    free(mq);
+    mq = NULL;
     return cost;
 }
 
